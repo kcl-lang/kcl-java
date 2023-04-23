@@ -18,16 +18,15 @@ public class BinClient implements KclClient {
     private String binName = "kcl";
 
     private String runCommand(String[] args) {
-        Process p;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            p = Runtime.getRuntime()
-                    .exec(ArrayUtils.addAll(new String[] { "cmd.exe /C " }, args));
-        } else {
-            p = Runtime.getRuntime()
-                    .exec(ArrayUtils.addAll(new String[] { "/bin/sh", "-c" }, args));
-        }
-        String result = null;
         try {
+            Process p;
+            if (SystemUtils.IS_OS_WINDOWS) {
+                p = Runtime.getRuntime()
+                        .exec(ArrayUtils.addAll(new String[] { "cmd.exe /C " }, args));
+            } else {
+                p = Runtime.getRuntime()
+                        .exec(ArrayUtils.addAll(new String[] { "/bin/sh", "-c" }, args));
+            }
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), "utf-8"));
             String line = null;
             StringBuffer b = new StringBuffer();
@@ -37,8 +36,8 @@ public class BinClient implements KclClient {
             return b.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return result;
     }
 
     @Override

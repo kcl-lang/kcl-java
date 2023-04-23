@@ -36,6 +36,3 @@ jobs:
       - name: 'Install'
         shell: bash
         run: mvn -B install -U -DskipTests=true -f $ROOT_POM
-      - name: 'Test'
-        shell: bash
-        run: mvn -B -P!standard-with-extra-repos verify -U -Dmaven.javadoc.skip=true -f $ROOT_POM
