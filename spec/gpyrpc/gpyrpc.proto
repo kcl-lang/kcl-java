@@ -3,11 +3,13 @@
 // This file defines the request parameters and return structure of the KCLVM RPC server.
 // We can use the following command to start a KCLVM RPC server.
 // 
-// KCLVM Version v0.4.6
+// KCLVM Version v0.5.x
 
 syntax = "proto3";
 
 package gpyrpc;
+
+option go_package = "kusionstack.io/kclvm-go/pkg/spec/gpyrpc;gpyrpc";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/descriptor.proto";
@@ -265,6 +267,7 @@ message CliConfig {
 	bool disable_none = 6;
 	int64 verbose = 7;
 	bool debug = 8;
+	bool sort_keys = 9;
 }
 
 message KeyValuePair {
