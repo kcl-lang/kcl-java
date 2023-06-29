@@ -1,9 +1,9 @@
-# KCLVM Java SDK
+# KCL Java SDK
 
-[![CI](https://github.com/KusionStack/kclvm-java/workflows/CI/badge.svg)](https://github.com/KusionStack/kclvm-java/actions)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/KusionStack/kclvm-java/blob/main/LICENSE)
+[![CI](https://github.com/kcl-lang/kcl-java/workflows/CI/badge.svg)](https://github.com/kcl-lang/kcl-java/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/kcl-lang/kcl-java/blob/main/LICENSE)
 
-KCLVM Java SDK
+KCL Java SDK
 
 ## Requirements
 
@@ -20,10 +20,10 @@ make
 
 ### REST Client
 
-+ Refer to the [rest-API-docs](https://kcl-lang.io/docs/reference/xlang-api/rest-api) to start the KCLVM REST server.
++ Refer to the [rest-API-docs](https://kcl-lang.io/docs/reference/xlang-api/rest-api) to start the KCL REST server.
 
 ### Binary Client
 
-+ [Install KCLVM](https://kcl-lang.io/docs/user_docs/getting-started/install)
++ [Install KCL](https://kcl-lang.io/docs/user_docs/getting-started/install)
 
 Unimplemented, welcome to contribute

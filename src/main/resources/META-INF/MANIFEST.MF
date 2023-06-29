@@ -1,1 +1,1 @@
-Module-Name: kclvm-java
+Module-Name: kcl-java

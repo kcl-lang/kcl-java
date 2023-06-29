@@ -2,8 +2,8 @@ package com.kclvm;
 
 import org.junit.Test;
 
-import com.kclvm.client.ClientSingleton;
-import com.kclvm.config.ConfigOptions;
+import com.kcl.client.ClientSingleton;
+import com.kcl.config.ConfigOptions;
 
 public class ClientSingletonTest {
     @Test
