@@ -1,20 +1,21 @@
 // Copyright 2023 The KCL Authors. All rights reserved.
 //
-// This file defines the request parameters and return structure of the KCLVM RPC server.
-// We can use the following command to start a KCLVM RPC server.
-// 
-// KCLVM Version v0.5.x
+// This file defines the request parameters and return structure of the KCL RPC server.
 
 syntax = "proto3";
 
 package gpyrpc;
 
-option go_package = "kusionstack.io/kclvm-go/pkg/spec/gpyrpc;gpyrpc";
-
 import "google/protobuf/any.proto";
 import "google/protobuf/descriptor.proto";
 
 // ----------------------------------------------------------------------------
+
+// kcl main.k -E pkg_name=pkg_path
+message CmdExternalPkgSpec {
+	string pkg_name = 1;
+	string pkg_path = 2;
+}
 
 // kcl main.k -D name=value
 message CmdArgSpec {
@@ -142,9 +143,14 @@ message ExecProgram_Args {
 
 	// yaml/json: sort keys
 	bool sort_keys = 12;
+
+	// -E --external : external packages path
+	repeated CmdExternalPkgSpec external_pkgs = 13;
+
 	// include schema type path in JSON/YAML result
-	bool include_schema_type_path = 13;
+	bool include_schema_type_path = 14;
 }
+
 message ExecProgram_Result {
 	string json_result = 1;
 	string yaml_result = 2;
@@ -276,11 +282,11 @@ message KeyValuePair {
 }
 
 // ----------------------------------------------------------------------------
-// JSON Schema Lit
+// KCL Type Structure
 // ----------------------------------------------------------------------------
 
 message KclType {
-	string type = 1;                     // schema, dict, list, str, int, float, bool, null, type_string
+	string type = 1;                     // schema, dict, list, str, int, float, bool, any, union, number_multiplier
 	repeated KclType union_types = 2 ;   // union types
 	string default = 3;                  // default value
 
@@ -295,12 +301,23 @@ message KclType {
 	int32 line = 10;
 
 	repeated Decorator decorators = 11;  // schema decorators
+
+	string filename = 12;                // `filename` represents the absolute path of the file name where the attribute is located.
+	string pkg_path = 13;                // `pkg_path` represents the path name of the package where the attribute is located.
+	string description = 14;             // `description` represents the document of the attribute.
+	map<string, Example> examples = 15;  // A map object to hold examples, the key is the example name.
 }
 
 message Decorator {
 	string name = 1;
 	repeated string arguments = 2;
 	map<string, string> keywords = 3;
+}
+
+message Example {
+	string summary = 1;                // Short description for the example.
+	string description = 2;            // Long description for the example.
+	google.protobuf.Any value = 3;     // Embedded literal example.
 }
 
 // ----------------------------------------------------------------------------
