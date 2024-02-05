@@ -7,6 +7,8 @@ KCL Java SDK
 
 ## Requirements
 
++ Python3+
++ Cargo
 + Java 8+
 + Maven
 
@@ -16,14 +18,93 @@ KCL Java SDK
 make
 ```
 
-## Developing
+## Add the Dependency
 
-### REST Client
+### Maven
 
-+ Refer to the [rest-API-docs](https://kcl-lang.io/docs/reference/xlang-api/rest-api) to start the KCL REST server.
+Generally, you can first add the os-maven-plugin to automatically detect the classifier based on your platform:
 
-### Binary Client
+```xml
+<build>
+<extensions>
+  <extension>
+    <groupId>kr.motd.maven</groupId>
+    <artifactId>os-maven-plugin</artifactId>
+    <version>1.7.0</version>
+  </extension>
+</extensions>
+</build>
+```
 
-+ [Install KCL](https://kcl-lang.io/docs/user_docs/getting-started/install)
+Add the JitPack repository to your build file
 
-Unimplemented, welcome to contribute
+```xml
+<repositories>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
+</repositories>
+```
+
+Add the dependency
+
+```xml
+<dependency>
+    <groupId>com.github.kcl-lang</groupId>
+    <artifactId>kcl-java</artifactId>
+    <version>-SNAPSHOT</version>
+</dependency>
+```
+
+### Gradle
+
+For Gradle, you can first add the `com.google.osdetector` to automatically detect the classifier based on your platform:
+
+```
+plugins {
+    id "com.google.osdetector" version "1.7.3"
+}
+```
+
+Add it in your root build.gradle at the end of repositories:
+
+```shell
+dependencyResolutionManagement {
+	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+	repositories {
+		mavenCentral()
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
+
+Add the dependency
+
+```shell
+dependencies {
+        implementation 'com.github.kcl-lang:kcl-java:-SNAPSHOT'
+}
+```
+
+## Quick Case
+
+```java
+import com.kcl.api.API;
+import com.kcl.api.Spec.*;
+import com.kcl.ast.Program;
+import com.kcl.util.JsonUtil;
+
+public class Main {
+    public void testProgramSymbols() throws Exception {
+        API api = new API();
+        LoadPackage_Result result = api.loadPackage(
+                LoadPackage_Args.newBuilder().setResolveAst(true).setParseArgs(
+                        ParseProgram_Args.newBuilder().addPaths("./src/test_data/schema.k").build())
+                        .build());
+        String programString = result.getProgram();
+        Program program = JsonUtil.deserializeProgram(programString);
+        result.getSymbolsMap().values().forEach(s -> System.out.println(s));
+    }
+}
+```

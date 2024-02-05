@@ -6,19 +6,59 @@
 
     <groupId>com.kcl</groupId>
     <artifactId>kcl-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.7.5</version>
+    <name>KCL Arifact Library for Java</name>
+    <description>
+        KCL is an open-source constraint-based record and functional language mainly
+        used in configuration and policy scenarios.
+    </description>
+    <url>https://kcl-lang.io</url>
 
     <properties>
         <java.version>1.8</java.version>
         <surefire.version>2.20</surefire.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <cargo-build.profile>dev</cargo-build.profile>
+        <cargo-build.target/> <!-- override cargo build target; e.g., use musl instead -->
+        <jni.classifier>${os.detected.classifier}</jni.classifier>
+
+        <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+        <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
+        <os-maven-plugin.version>1.7.0</os-maven-plugin.version>
+        <palantir-java-format.version>2.36.0</palantir-java-format.version>
+        <spotless.version>2.39.0</spotless.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.21.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
+        </dependency>
+        <!-- Jackson Core -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+        <!-- Jackson Annotations -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+        <!-- Jackson Databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.2</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -57,16 +97,98 @@
         </dependency>
     </dependencies>
     <build>
+        <extensions>
+          <extension>
+            <groupId>kr.motd.maven</groupId>
+            <artifactId>os-maven-plugin</artifactId>
+            <version>1.7.0</version>
+          </extension>
+        </extensions>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile-native-code</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>python3</executable>
+                            <arguments>
+                                <argument>${project.basedir}/scripts/build.py</argument>
+                                <argument>--classifier</argument>
+                                <argument>${jni.classifier}</argument>
+                                <argument>--target</argument>
+                                <argument>${cargo-build.target}</argument>
+                                <argument>--profile</argument>
+                                <argument>${cargo-build.profile}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.17.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <archive>
-                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                </configuration>
+                <executions>
+                    <!--  Generate the fallback JAR that does not contain the native library.  -->
+                    <execution>
+                        <id>default-jar</id>
+                        <configuration>
+                            <excludes>
+                                <exclude>native/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!--  Generate the JAR that contains the native library in it.  -->
+                    <execution>
+                        <id>native-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>${jni.classifier}</classifier>
+                            <includes>
+                                <include>native/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -77,37 +199,6 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
                 <version>3.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
-                <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                    <threadCount>1</threadCount>
-                    <properties>
-                        <junit>false</junit>
-                    </properties>
-                    <includes>
-                        <include>**/*Tests.java</include>
-                        <include>**/*Test.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/Abstract*.java</exclude>
-                    </excludes>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>${surefire.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-testng</artifactId>
-                        <version>${surefire.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -129,6 +220,11 @@
                 <configuration>
                     <downloadSources>true</downloadSources>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -158,4 +254,16 @@
             </activation>
         </profile>
     </profiles>
+    <distributionManagement>
+      <snapshotRepository>
+        <id>sonatype-nexus-snapshots</id>
+        <name>Sonatype Nexus Snapshots</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      </snapshotRepository>
+      <repository>
+        <id>sonatype-nexus-staging</id>
+        <name>Nexus Release Repository</name>
+        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      </repository>
+    </distributionManagement>
 </project>
