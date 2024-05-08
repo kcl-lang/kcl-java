@@ -1,110 +1,77 @@
 # KCL Java SDK
 
-[![CI](https://github.com/kcl-lang/kcl-java/workflows/CI/badge.svg)](https://github.com/kcl-lang/kcl-java/actions)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/kcl-lang/kcl-java/blob/main/LICENSE)
+Synchronized from the repo: https://github.com/kcl-lang/lib/tree/main/java
 
-KCL Java SDK
+## Installation
 
-## Requirements
-
-+ Python3+
-+ Cargo
-+ Java 8+
-+ Maven
-
-## Build and Test
-
-```shell
-make
-```
-
-## Add the Dependency
+Refer to [this](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages) to configure your Maven; set up your GitHub account and Token in the `settings.xml`.
 
 ### Maven
 
-Generally, you can first add the os-maven-plugin to automatically detect the classifier based on your platform:
-
-```xml
-<build>
-<extensions>
-  <extension>
-    <groupId>kr.motd.maven</groupId>
-    <artifactId>os-maven-plugin</artifactId>
-    <version>1.7.0</version>
-  </extension>
-</extensions>
-</build>
-```
-
-Add the JitPack repository to your build file
+In your project's pom.xml, configure our repository as follows:
 
 ```xml
 <repositories>
-	<repository>
-	    <id>jitpack.io</id>
-	    <url>https://jitpack.io</url>
-	</repository>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/kcl-lang/*</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
 </repositories>
 ```
 
-Add the dependency
+This way you'll be able to import the above dependency to use the SDK.
 
 ```xml
 <dependency>
-    <groupId>com.github.kcl-lang</groupId>
-    <artifactId>kcl-java</artifactId>
-    <version>-SNAPSHOT</version>
+    <groupId>com.kcl</groupId>
+    <artifactId>kcl-lib</artifactId>
+    <version>0.8.6</version>
 </dependency>
 ```
 
-### Gradle
-
-For Gradle, you can first add the `com.google.osdetector` to automatically detect the classifier based on your platform:
-
-```
-plugins {
-    id "com.google.osdetector" version "1.7.3"
-}
-```
-
-Add it in your root build.gradle at the end of repositories:
-
-```shell
-dependencyResolutionManagement {
-	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-	repositories {
-		mavenCentral()
-		maven { url 'https://jitpack.io' }
-	}
-}
-```
-
-Add the dependency
-
-```shell
-dependencies {
-        implementation 'com.github.kcl-lang:kcl-java:-SNAPSHOT'
-}
-```
-
-## Quick Case
+Write the code
 
 ```java
 import com.kcl.api.API;
-import com.kcl.api.Spec.*;
-import com.kcl.ast.Program;
-import com.kcl.util.JsonUtil;
+import com.kcl.api.Spec.ExecProgram_Args;
+import com.kcl.api.Spec.ExecProgram_Result;
 
-public class Main {
-    public void testProgramSymbols() throws Exception {
+public class ExecProgramTest {
+    public static void main(String[] args) throws Exception {
         API api = new API();
-        LoadPackage_Result result = api.loadPackage(
-                LoadPackage_Args.newBuilder().setResolveAst(true).setParseArgs(
-                        ParseProgram_Args.newBuilder().addPaths("./src/test_data/schema.k").build())
-                        .build());
-        String programString = result.getProgram();
-        Program program = JsonUtil.deserializeProgram(programString);
-        result.getSymbolsMap().values().forEach(s -> System.out.println(s));
+        ExecProgram_Result result = api
+                .execProgram(ExecProgram_Args.newBuilder().addKFilenameList("path/to/kcl.k").build());
+        System.out.println(result.getYamlResult());
     }
 }
+```
+
+## Developing
+
+- Install `Java 8+`
+- Install `cargo` and `Python` (for Rust code building)
+
+```shell
+pnpm install
+```
+
+### Building
+
+```shell
+make build
+```
+
+### Testing
+
+```shell
+make test
+```
+
+### Format
+
+```shell
+make fmt
 ```

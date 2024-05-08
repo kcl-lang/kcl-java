@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.kcl</groupId>
-    <artifactId>kcl-java</artifactId>
-    <version>0.8.0</version>
+    <artifactId>kcl-lib</artifactId>
+    <version>0.8.6</version>
     <name>KCL Arifact Library for Java</name>
     <description>
         KCL is an open-source constraint-based record and functional language mainly
@@ -20,7 +19,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <cargo-build.profile>dev</cargo-build.profile>
-        <cargo-build.target/> <!-- override cargo build target; e.g., use musl instead -->
+        <cargo-build.target/>
+        <!-- override cargo build target; e.g., use musl instead -->
         <jni.classifier>${os.detected.classifier}</jni.classifier>
 
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.21.1</version>
+            <version>3.25.3</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -59,11 +59,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.13.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.68</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -98,13 +93,20 @@
     </dependencies>
     <build>
         <extensions>
-          <extension>
-            <groupId>kr.motd.maven</groupId>
-            <artifactId>os-maven-plugin</artifactId>
-            <version>1.7.0</version>
-          </extension>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+            </extension>
         </extensions>
         <resources>
+            <resource>
+                <directory>native</directory>
+            </resource>
+            <resource>
+                <directory>native</directory>
+                <targetPath>native</targetPath>
+            </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -117,6 +119,21 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.16.0</version>
+                <configuration>
+                    <!-- specify your configuration here -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -148,20 +165,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>net.revelc.code.formatter</groupId>
-                <artifactId>formatter-maven-plugin</artifactId>
-                <version>2.17.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -170,20 +173,8 @@
                     <execution>
                         <id>default-jar</id>
                         <configuration>
-                            <excludes>
-                                <exclude>native/**</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <!--  Generate the JAR that contains the native library in it.  -->
-                    <execution>
-                        <id>native-jar</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>${jni.classifier}</classifier>
                             <includes>
+                                <include>**/*.class</include>
                                 <include>native/**</include>
                             </includes>
                         </configuration>
@@ -255,15 +246,10 @@
         </profile>
     </profiles>
     <distributionManagement>
-      <snapshotRepository>
-        <id>sonatype-nexus-snapshots</id>
-        <name>Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-      </snapshotRepository>
-      <repository>
-        <id>sonatype-nexus-staging</id>
-        <name>Nexus Release Repository</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/kcl-lang/lib</url>
+        </repository>
     </distributionManagement>
 </project>
